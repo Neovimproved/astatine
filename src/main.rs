@@ -24,11 +24,15 @@ fn main() -> Result<()> {
 
     let output_file = match args.output {
         Some(out) => out,
-        None => file_path
-            .file_name()
-            .ok_or_else(|| eyre!("File name could not be resolved"))?
-            .to_string_lossy()
-            .to_string(),
+        None => Path::new(
+            file_path
+                .file_name()
+                .ok_or_else(|| eyre!("File name could not be resolved"))?,
+        )
+        .file_stem()
+        .ok_or_else(|| eyre!("File stem could not be extracted"))?
+        .to_string_lossy()
+        .to_string(),
     };
 
     let canonicalized_output_file = fs::canonicalize(&output_file)?;
