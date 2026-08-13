@@ -7,7 +7,11 @@ mod parser;
 mod symbols;
 mod syntax;
 
-use std::{fs, path::Path, process::Command};
+use std::{
+    fs,
+    path::{self, Path},
+    process::Command,
+};
 
 use clap::Parser as ClapParser;
 use cli::Cli;
@@ -35,9 +39,9 @@ fn main() -> Result<()> {
         .to_string(),
     };
 
-    let canonicalized_output_file = fs::canonicalize(&output_file)?;
-
-    if canonicalized_output_file == file_path {
+    if path::absolute(&output_file).wrap_err("Failed to get absolute path of output file")?
+        == file_path
+    {
         return Err(eyre!("Output file cannot be the same as an input file"));
     }
 
@@ -55,7 +59,7 @@ fn main() -> Result<()> {
     let ast = Parser::new(&tokens).parse()?;
 
     if args.ast {
-        let ast_file = format!("{output_file}.ast");
+        let ast_file = format!("{output_file}.tree");
         fs::write(ast_file, format!("{ast:#?}"))?;
     }
 
