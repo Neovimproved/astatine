@@ -17,7 +17,13 @@ pub trait BindingPower {
 
 impl BindingPower for PrefixOp {
     fn binding_power(&self) -> u32 {
-        todo!("implement prefix operator binding power")
+        match self {
+            Self::Negate => 101,
+            Self::Deref => 101,
+            Self::Not => 101,
+            Self::BitNot => 101,
+            Self::Reference => 101,
+        }
     }
 }
 
@@ -44,7 +50,12 @@ impl BindingPower for BinaryOp {
 
 impl BindingPower for PostfixOp {
     fn binding_power(&self) -> u32 {
-        todo!("implement postfix operator binding power")
+        match self {
+            Self::Call { args: _ } => 102,
+            Self::Index(_) => 102,
+            Self::Dot => 102,
+            Self::Try => 102,
+        }
     }
 }
 
@@ -246,7 +257,7 @@ impl<'a> Parser<'a> {
                 Token::BangEq => BinaryOp::NotEq,
                 Token::Eq => todo!("maybe implement something for ts later"), // error
                 Token::EqEq => BinaryOp::Equal,
-                Token::Period => todo!(), // PostfixOp::Dot,
+                Token::Period => PostfixOp::Dot,
                 Token::Comma => todo!(),
                 Token::Semicolon => break,
                 Token::Asterisk => BinaryOp::Multiply,
