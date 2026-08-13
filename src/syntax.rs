@@ -32,7 +32,7 @@ impl FromStr for Keyword {
             "continue" => Ok(Self::Continue),
             "break" => Ok(Self::Break),
             "for" => Ok(Self::For),
-            "function" => Ok(Self::Func),
+            "fun" => Ok(Self::Func),
             "else" => Ok(Self::Else),
             "if" => Ok(Self::If),
             "let" => Ok(Self::Let),
