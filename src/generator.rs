@@ -8,8 +8,8 @@ use crate::{
 // enum Error {}
 
 pub enum ConstantResolveError<'a> {
-    NoDefinition(&'a str),
-    InvalidSymbol(&'a str, SymbolDefinition<'a>),
+    NoDefinition(String),
+    InvalidSymbol(String, SymbolDefinition<'a>),
 }
 
 #[derive(Default)]
@@ -30,9 +30,9 @@ pub struct Sections {
 
 #[derive(Debug)]
 pub struct Generator<'a> {
-    _ast: &'a [Node],
+    ast: &'a [Node],
 
-    _types: TypeTable, // index via type id
+    types: TypeTable, // index via type id
     global_symbols: SymbolTable<'a>,
 }
 
@@ -60,8 +60,8 @@ impl<'a> Generator<'a> {
         }
 
         Self {
-            _ast: ast,
-            _types: types,
+            ast,
+            types,
             global_symbols,
         }
     }
