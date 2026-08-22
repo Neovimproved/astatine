@@ -95,6 +95,12 @@ pub enum PostfixOp {
     Try,
 }
 
+pub enum Operator {
+    Prefix(PrefixOp),
+    Binary(BinaryOp),
+    Postfix(PostfixOp),
+}
+
 #[derive(Clone, Debug)]
 pub enum Expression {
     PrefixOperation {

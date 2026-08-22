@@ -6,8 +6,8 @@ use thiserror::Error;
 use crate::{
     lexer::Token,
     syntax::{
-        Argument, BinaryOp, Declaration, Expression, FunctionDefinition, Keyword, PostfixOp,
-        PrefixOp, StructType,
+        Argument, BinaryOp, Declaration, Expression, FunctionDefinition, Keyword, Operator,
+        PostfixOp, PrefixOp, StructType,
     },
 };
 
@@ -248,31 +248,42 @@ impl<'a> Parser<'a> {
 
             let operator = match token {
                 Token::RightParen => break,
-                Token::LeftSquare => todo!("implement indexing"),
+                Token::LeftSquare => Operator::Postfix(PostfixOp::Index(())),
                 Token::RightSquare => break,
-                Token::Amp => BinaryOp::BitAnd,
-                Token::AndAnd => BinaryOp::And,
-                Token::Pipe => BinaryOp::BitOr,
-                Token::OrOr => BinaryOp::Or,
-                Token::BangEq => BinaryOp::NotEq,
-                Token::Eq => todo!("maybe implement something for ts later"), // error
-                Token::EqEq => BinaryOp::Equal,
-                Token::Period => PostfixOp::Dot,
-                Token::Comma => todo!(),
+                Token::Amp => Operator::Binary(BinaryOp::BitAnd),
+                Token::AndAnd => Operator::Binary(BinaryOp::And),
+                Token::Pipe => Operator::Binary(BinaryOp::BitOr),
+                Token::OrOr => Operator::Binary(BinaryOp::Or),
+                Token::BangEq => Operator::Binary(BinaryOp::NotEq),
+                Token::Eq => Operator::Binary(BinaryOp::Equal), // error
+                Token::EqEq => Operator::Binary(BinaryOp::Equal),
+                Token::Period => Operator::Postfix(PostfixOp::Dot),
+                Token::Comma => todo!("impl comma"),
                 Token::Semicolon => break,
-                Token::Asterisk => BinaryOp::Multiply,
-                Token::Slash => BinaryOp::Divide,
-                Token::Percent => BinaryOp::Modulo,
-                Token::Plus => BinaryOp::Add,
-                Token::Minus => BinaryOp::Subtract,
-
-                // TODO: add postfix operator support
-                _ => {
+                Token::Asterisk => Operator::Binary(BinaryOp::Multiply),
+                Token::Slash => Operator::Binary(BinaryOp::Divide),
+                Token::Percent => Operator::Binary(BinaryOp::Modulo),
+                Token::Plus => Operator::Binary(BinaryOp::Add),
+                Token::Minus => Operator::Binary(BinaryOp::Subtract),
+                Token::Keyword(_) => todo!("impl keywords in declarations"),
+                Token::Literal { .. } | Token::Identifier(_) => {
                     return Err(ParseError::UnexpectedToken(
                         (*token).clone(),
                         "infix operator for expression",
                     ));
                 }
+                Token::LeftParen => todo!(),
+                Token::LeftCurly => todo!(),
+                Token::RightCurly => todo!(),
+                Token::Bang => todo!(),
+                Token::Colon => todo!(),
+                // TODO: add postfix operator support
+                // _ => {
+                //     return Err(ParseError::UnexpectedToken(
+                //         (*token).clone(),
+                //         "infix operator for expression",
+                //     ));
+                // }
             };
 
             let op_bp = operator.binding_power();
