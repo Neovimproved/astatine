@@ -201,13 +201,19 @@ impl<'a> Parser<'a> {
         Ok(Expression::Return(Box::new(expression)))
     }
 
-    // fn parse_infix_op(&mut self, lhs: Expression, op: BinaryOp, rhs) -> Expression {
-    //     Expression::InfixOperation {
-    //         lhs: Box::new(lhs),
-    //         op,
-    //         rhs: Box::new(self.tokens.next().unwrap),
-    //     }
-    // }
+    fn parse_infix_op(&mut self, lhs: Expression, op: BinaryOp) -> Result<Expression> {
+        Ok(Expression::InfixOperation {
+            lhs: Box::new(lhs),
+            op,
+            rhs: Box::new(self.parse_expr(min_binding_pow)
+                self.tokens
+                    .next()
+                    .unwrap_or_else(|| eyre!("Failed to unwrap next token")),
+            ),
+        })
+    }
+
+    fn parse_postfix_operator(&mut self, lhs: Expression, op: BinaryOp) -> Expression {}
 
     fn parse_expr(&mut self, min_binding_pow: u32) -> Result<Expression, ParseError> {
         let first_token = self.tokens.next().or_err()?;
