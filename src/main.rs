@@ -1,4 +1,4 @@
-#![allow(unused)]
+#![allow(dead_code)]
 
 mod cli;
 mod generator;
