@@ -83,7 +83,10 @@ pub enum BinaryOp {
 #[derive(Clone, Debug)]
 pub enum PostfixOp {
     // Example: print("hello")
-    Call { args: Vec<Expression> },
+    Call {
+        function: IdentifierId,
+        args: Vec<Expression>,
+    },
 
     // Example: list[1]
     Index(Box<Expression>),
