@@ -33,6 +33,14 @@ impl<T> Span<T> {
         self.position = (self.position + count).min(self.items.len());
         self.items.get(self.position)
     }
+
+    pub fn remaining(&self) -> &[T] {
+        &self.items[self.position..]
+    }
+
+    pub fn remaining_mut(&mut self) -> &mut [T] {
+        &mut self.items[self.position..]
+    }
 }
 
 impl<'a, T> IntoIterator for &'a Span<T> {
