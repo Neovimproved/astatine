@@ -1,2 +1,3 @@
 - Use strings for type names, since hash map and no harm in doing so
 - Use ids for variable names, sure yeah because
+- For now, just use an integer type no overcomplication
