@@ -3,5 +3,5 @@ resolver = "3"
 members = ["crates/*"]
 
 [workspace.package]
-license = "MIT"
 repository = "https://github.com/Neovimproved/astatine"
+license = "MIT"

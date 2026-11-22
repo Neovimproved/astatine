@@ -2,9 +2,9 @@
 name = "astatine-derive"
 version = "0.1.0"
 edition = "2024"
-license.workspace = true
-repository.workspace = true
 description = "Derive crate for astatine"
+repository.workspace = true
+license.workspace = true
 
 [lib]
 proc-macro = true
