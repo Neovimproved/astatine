@@ -29,7 +29,7 @@ pub struct Lexer {
     span: Span<char>,
 }
 
-impl<'a> Lexer {
+impl Lexer {
     pub fn new(s: Vec<char>) -> Self {
         Self { span: Span::new(s) }
     }
