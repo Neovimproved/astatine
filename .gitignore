@@ -1,3 +1,10 @@
 /target
 /test*
 .direnv/
+/*.at
+/*.tok
+/*.ast
+/*.ast
+/*.asm
+/thing
+/test
