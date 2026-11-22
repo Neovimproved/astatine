@@ -49,7 +49,7 @@ impl<'a, T> IntoIterator for &'a Span<T> {
     type IntoIter = slice::Iter<'a, T>;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.items[self.position..].into_iter()
+        self.items[self.position..].iter()
     }
 }
 
