@@ -8,7 +8,9 @@ use derive_more::{Display, From};
 
 use crate::{
     span::Span,
-    syntax::{Expression, FunctionParameter, Keyword, Token, TokenKind, TryAsErr},
+    syntax::{
+        Expression, FunctionNode, FunctionParameter, Keyword, Node, Token, TokenKind, TryAsErr,
+    },
 };
 
 #[derive(Debug, Display, From)]
@@ -53,40 +55,22 @@ impl<'a> Parser<'a> {
         }
     }
 
-    pub fn parse(&mut self) -> Result<Vec<Expression>, ParseError> {
-        let mut expressions = vec![];
+    pub fn parse(&mut self) -> Result<Vec<Node>, ParseError> {
+        let mut nodes = vec![];
 
         while let Some(token) = self.peek() {
-            let expr = match token.kind() {
-                TokenKind::Asterisk => todo!(),
-                TokenKind::CharLiteral(_) => todo!(),
-                TokenKind::Colon => todo!(),
-                TokenKind::Comma => todo!(),
-                TokenKind::Float(_) => todo!(),
-                TokenKind::Identifier(_) => todo!(),
-                TokenKind::Integer(_) => todo!(),
+            let node = match token.kind() {
                 TokenKind::Keyword(keyword) => match keyword {
                     Keyword::Define => self.parse_function()?,
                     _ => todo!(),
                 },
-                TokenKind::LeftCurly => todo!(),
-                TokenKind::LeftParen => todo!(),
-                TokenKind::LeftSquare => todo!(),
-                TokenKind::Minus => todo!(),
-                TokenKind::Plus => todo!(),
-                TokenKind::RightCurly => todo!(),
-                TokenKind::RightParen => todo!(),
-                TokenKind::RightSquare => todo!(),
-                TokenKind::Semicolon => todo!(),
-                TokenKind::Slash => todo!(),
-                TokenKind::StringLiteral(_) => todo!(),
-                TokenKind::Period => todo!(),
+                _ => todo!(),
             };
 
-            expressions.push(expr);
+            nodes.push(node);
         }
 
-        Ok(expressions)
+        Ok(nodes)
     }
 
     fn peek_ok(&mut self) -> Result<&Token, ParseError> {
@@ -97,7 +81,7 @@ impl<'a> Parser<'a> {
         self.next().ok_or(ParseError::MissingToken)
     }
 
-    fn parse_function(&mut self) -> Result<Expression, ParseError> {
+    fn parse_function(&mut self) -> Result<Node, ParseError> {
         // advance past definition keyword
         self.next();
 
@@ -134,28 +118,31 @@ impl<'a> Parser<'a> {
 
         self.next_ok()?.try_as_left_curly()?;
 
+        // parse nodes
         loop {
-            let tok = self.next_ok()?;
+            let tok = self.peek_ok()?;
 
             if matches!(tok.kind(), TokenKind::RightCurly) {
+                self.next();
                 break;
             }
         }
 
-        Ok(Expression::Function {
+        Ok(Node::Function {
             name,
             parameters,
-            statements: vec![],
+            nodes: vec![],
         })
     }
 
-    fn parse_statement(&mut self) -> Result<Expression, ParseError> {
+    fn parse_function_node(&mut self) -> Result<FunctionNode, ParseError> {
         // TODO: some lookahead shit for detecting hmm is it a function call or is it assignment
-        let expr = match self.peek_ok()?.kind() {
+        let node = match self.peek_ok()?.kind() {
             TokenKind::Asterisk => todo!(),
             TokenKind::CharLiteral(_) => todo!(),
             TokenKind::Colon => todo!(),
             TokenKind::Comma => todo!(),
+            TokenKind::Equals => todo!(),
             TokenKind::Float(_) => todo!(),
             TokenKind::Identifier(_) => todo!(),
             TokenKind::Integer(_) => todo!(),
@@ -179,10 +166,28 @@ impl<'a> Parser<'a> {
             TokenKind::Period => todo!(),
         };
 
-        Ok(expr)
+        Ok(node)
     }
 
-    fn parse_declaration(&mut self) -> Result<Expression, ParseError> {
-        self.tokens.
+    fn parse_declaration(&mut self) -> Result<FunctionNode, ParseError> {
+        // skip declaration keyword
+        self.next_ok()?;
+
+        let name = self.next_ok()?.try_as_identifier()?.to_string();
+
+        // skip equals
+        self.next_ok()?.try_as_equals()?;
+
+        // pop until semicolon
+        let value = self.parse_expression()?;
+
+        Ok(FunctionNode::Declaration {
+            name,
+            value: Box::new(value),
+        })
+    }
+
+    fn parse_expression(&mut self) -> Result<Expression, ParseError> {
+        todo!()
     }
 }

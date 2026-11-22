@@ -1,4 +1,5 @@
 use std::{
+    collections::HashSet,
     error::Error,
     fs::{self, File},
     io::{self, Write},
@@ -61,11 +62,14 @@ impl FileWriter {
             .into_diagnostic()
             .wrap_err_with(|| format!("Failed to canonicalize {}", relative_path.display()))?;
 
-        if self.input_path != resolved_path {
-            f().into_diagnostic()
-        } else {
-            bail!("Input ");
+        if self.input_path == resolved_path {
+            bail!(
+                "Unable to continue since the contents of `{}` would otherwise be overriden",
+                self.relative_path
+            );
         }
+
+        f().into_diagnostic()
     }
 }
 

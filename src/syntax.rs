@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use std::{fmt::Display, str::FromStr};
 
 use derive_more::Display;
@@ -57,6 +58,9 @@ pub enum TokenKind {
 
     /// ,
     Comma,
+
+    /// =
+    Equals,
 
     /// a.b
     Float(String),
@@ -209,6 +213,8 @@ macro_rules! impl_try_as {
 impl_try_as!(none;
     Asterisk;
     Colon;
+    Comma;
+    Equals;
     LeftCurly;
     LeftParen;
     LeftSquare;
@@ -227,7 +233,6 @@ impl_try_as!(mul;
     StringLiteral(s)
 );
 
-#[allow(dead_code)]
 #[derive(Debug)]
 pub struct Token {
     kind: TokenKind,
@@ -248,15 +253,25 @@ impl Token {
     }
 }
 
-#[allow(dead_code)]
 #[derive(Debug)]
-pub enum Expression {
+pub enum Node {
     Function {
         name: String,
         parameters: Vec<FunctionParameter>,
-        statements: Vec<Expression>,
+        nodes: Vec<FunctionNode>,
     },
 }
+
+#[derive(Debug)]
+pub enum FunctionNode {
+    Declaration {
+        name: String,
+        value: Box<Expression>,
+    },
+}
+
+#[derive(Debug)]
+pub enum Expression {}
 
 #[derive(Debug)]
 pub struct FunctionParameter {
