@@ -26,10 +26,7 @@ impl<T> Span<T> {
     }
 
     pub fn next(&mut self) -> Option<&T> {
-        let Some(item) = self.items.get(self.position) else {
-            return None;
-        };
-
+        let item = self.items.get(self.position)?;
         self.position += 1;
         Some(item)
     }
