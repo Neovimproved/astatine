@@ -57,9 +57,7 @@ impl Lexer {
     fn advance_to_next_line(&mut self) {
         while let Some(ch) = self.next()
             && ch != '\n'
-        {
-            println!("Advancing");
-        }
+        {}
     }
 
     pub fn tokenize(&mut self) -> Result<Vec<Token>, TokenizeError> {
