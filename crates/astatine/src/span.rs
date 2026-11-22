@@ -14,9 +14,7 @@ impl<T> Span<T> {
     pub fn pos(&self) -> usize {
         self.position
     }
-}
 
-impl<T> Span<T> {
     pub fn peek(&self) -> Option<&T> {
         self.items.get(self.position)
     }
