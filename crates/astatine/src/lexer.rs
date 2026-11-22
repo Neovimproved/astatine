@@ -42,6 +42,7 @@ impl Lexer {
         self.span.peek().copied()
     }
 
+    #[allow(dead_code)]
     fn peek_nth(&mut self, idx: usize) -> Option<char> {
         self.span.peek_nth(idx).copied()
     }
@@ -99,16 +100,13 @@ impl Lexer {
 
                         '*' => TokenKind::Asterisk,
 
-                        '/' if self.peek_nth(1) == Some('/') => {
+                        '/' if self.peek() == Some('/') => {
                             // indicates a comment
                             self.advance_to_next_line();
                             continue;
                         }
 
-                        '/' => {
-                            println!("{:?}", self.peek_nth(1));
-                            TokenKind::Slash
-                        }
+                        '/' => TokenKind::Slash,
 
                         ch if ch.is_whitespace() => continue,
 
