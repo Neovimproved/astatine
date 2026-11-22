@@ -22,7 +22,7 @@ impl<T> Span<T> {
     }
 
     pub fn peek_nth(&self, idx: usize) -> Option<&T> {
-        self.items.get(idx)
+        self.items.get(self.position + idx)
     }
 
     pub fn next(&mut self) -> Option<&T> {
