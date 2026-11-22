@@ -1,5 +1,4 @@
 use std::{
-    collections::HashSet,
     error::Error,
     fs::{self, File},
     io::{self, Write},
@@ -116,7 +115,7 @@ fn main() -> miette::Result<()> {
 
     let if_chars: Vec<char> = input_file_string.chars().collect();
 
-    let mut lexer = Lexer::new(&if_chars);
+    let mut lexer = Lexer::new(if_chars);
 
     let tokens = match lexer.tokenize() {
         Ok(tokens) => tokens,
@@ -134,7 +133,7 @@ fn main() -> miette::Result<()> {
         })?;
     }
 
-    let mut parser = Parser::new(&tokens);
+    let mut parser = Parser::new(tokens);
 
     let ast = match parser.parse() {
         Ok(ast) => ast,

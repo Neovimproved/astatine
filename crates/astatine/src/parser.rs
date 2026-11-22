@@ -1,8 +1,5 @@
 #![allow(dead_code)]
-use std::{
-    ops::{Deref, DerefMut},
-    slice::Iter,
-};
+use std::ops::{Deref, DerefMut};
 
 use derive_more::{Display, From};
 
@@ -30,28 +27,28 @@ impl From<TryAsErr> for ParseError {
 }
 
 #[derive(Debug)]
-pub struct Parser<'a> {
-    tokens: Span<Iter<'a, Token>>,
+pub struct Parser {
+    tokens: Span<Token>,
 }
 
-impl<'a> Deref for Parser<'a> {
-    type Target = Span<Iter<'a, Token>>;
+impl Deref for Parser {
+    type Target = Span<Token>;
 
     fn deref(&self) -> &Self::Target {
         &self.tokens
     }
 }
 
-impl<'a> DerefMut for Parser<'a> {
+impl DerefMut for Parser {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.tokens
     }
 }
 
-impl<'a> Parser<'a> {
-    pub fn new(tokens: &'a [Token]) -> Self {
+impl Parser {
+    pub fn new(tokens: Vec<Token>) -> Self {
         Self {
-            tokens: Span::new(tokens.iter()),
+            tokens: Span::new(tokens),
         }
     }
 
@@ -85,9 +82,9 @@ impl<'a> Parser<'a> {
         // advance past definition keyword
         self.next();
 
-        let name = self.next_ok()?.try_as_identifier()?.to_string();
+        let name = self.next_ok()?.kind().try_as_identifier()?.to_string();
 
-        self.next_ok()?.try_as_left_paren()?;
+        self.next_ok()?.kind().try_as_left_paren()?;
 
         let mut parameters = vec![];
 
@@ -105,8 +102,8 @@ impl<'a> Parser<'a> {
                 }
             };
 
-            self.next_ok()?.try_as_colon()?;
-            let arg_type = self.next_ok()?.try_as_identifier()?.to_string();
+            self.next_ok()?.kind().try_as_colon()?;
+            let arg_type = self.next_ok()?.kind().try_as_identifier()?.to_string();
 
             // TODO: figure out borrow
             parameters.push(FunctionParameter::new(param_name, arg_type));
@@ -116,22 +113,48 @@ impl<'a> Parser<'a> {
             }
         }
 
-        self.next_ok()?.try_as_left_curly()?;
+        self.next_ok()?.kind().try_as_left_curly()?;
+
+        let mut nodes = vec![];
 
         // parse nodes
         loop {
             let tok = self.peek_ok()?;
 
-            if matches!(tok.kind(), TokenKind::RightCurly) {
-                self.next();
-                break;
-            }
+            let node = match tok.kind() {
+                TokenKind::Asterisk => todo!(),
+                TokenKind::CharLiteral(_) => todo!(),
+                TokenKind::Colon => todo!(),
+                TokenKind::Comma => todo!(),
+                TokenKind::Equals => todo!(),
+                TokenKind::Float(_) => todo!(),
+                TokenKind::Identifier(_) => todo!(),
+                TokenKind::Integer(_) => todo!(),
+                TokenKind::Keyword(keyword) => match keyword {
+                    Keyword::Let => self.parse_declaration()?,
+                    _ => todo!(),
+                },
+                TokenKind::LeftCurly => todo!(),
+                TokenKind::LeftParen => todo!(),
+                TokenKind::LeftSquare => todo!(),
+                TokenKind::Minus => todo!(),
+                TokenKind::Plus => todo!(),
+                TokenKind::RightCurly => break,
+                TokenKind::RightParen => todo!(),
+                TokenKind::RightSquare => todo!(),
+                TokenKind::Semicolon => todo!(),
+                TokenKind::Slash => todo!(),
+                TokenKind::StringLiteral(_) => todo!(),
+                TokenKind::Period => todo!(),
+            };
+
+            nodes.push(node);
         }
 
         Ok(Node::Function {
             name,
             parameters,
-            nodes: vec![],
+            nodes,
         })
     }
 
@@ -173,10 +196,10 @@ impl<'a> Parser<'a> {
         // skip declaration keyword
         self.next_ok()?;
 
-        let name = self.next_ok()?.try_as_identifier()?.to_string();
+        let name = self.next_ok()?.kind().try_as_identifier()?.to_string();
 
         // skip equals
-        self.next_ok()?.try_as_equals()?;
+        self.next_ok()?.kind().try_as_equals()?;
 
         // pop until semicolon
         let value = self.parse_expression()?;

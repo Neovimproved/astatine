@@ -1,4 +1,4 @@
-use std::{slice::Iter, str::FromStr};
+use std::str::FromStr;
 
 use derive_more::Display;
 
@@ -25,15 +25,13 @@ pub enum TokenizeError {
     UnescapedMultilineString(String),
 }
 
-pub struct Lexer<'a> {
-    span: Span<Iter<'a, char>>,
+pub struct Lexer {
+    span: Span<char>,
 }
 
-impl<'a> Lexer<'a> {
-    pub fn new(s: &'a [char]) -> Self {
-        Self {
-            span: Span::new(s.iter()),
-        }
+impl<'a> Lexer {
+    pub fn new(s: Vec<char>) -> Self {
+        Self { span: Span::new(s) }
     }
 
     pub fn pos(&self) -> usize {
@@ -44,12 +42,24 @@ impl<'a> Lexer<'a> {
         self.span.peek().copied()
     }
 
+    fn peek_nth(&mut self, idx: usize) -> Option<char> {
+        self.span.peek_nth(idx).copied()
+    }
+
     fn next_ok(&mut self) -> Result<char, TokenizeError> {
         self.span.next().copied().ok_or(TokenizeError::MissingChar)
     }
 
     fn next(&mut self) -> Option<char> {
         self.span.next().copied()
+    }
+
+    fn advance_to_next_line(&mut self) {
+        while let Some(ch) = self.next()
+            && ch != '\n'
+        {
+            println!("Advancing");
+        }
     }
 
     pub fn tokenize(&mut self) -> Result<Vec<Token>, TokenizeError> {
@@ -84,6 +94,23 @@ impl<'a> Lexer<'a> {
                         ':' => TokenKind::Colon,
 
                         ';' => TokenKind::Semicolon,
+
+                        '+' => TokenKind::Plus,
+
+                        '-' => TokenKind::Minus,
+
+                        '*' => TokenKind::Asterisk,
+
+                        '/' if self.peek_nth(1) == Some('/') => {
+                            // indicates a comment
+                            self.advance_to_next_line();
+                            continue;
+                        }
+
+                        '/' => {
+                            println!("{:?}", self.peek_nth(1));
+                            TokenKind::Slash
+                        }
 
                         ch if ch.is_whitespace() => continue,
 

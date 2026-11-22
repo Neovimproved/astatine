@@ -1,0 +1,12 @@
+[package]
+name = "astatine"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+astatine-derive = { path = "../astatine-derive/", version = "0.1.0" }
+clap = { version = "4.6.5", features = ["derive"] }
+const_format = "0.2.37"
+derive_more = { version = "2.1.1", features = ["full"] }
+miette = { version = "7.6.0", features = ["fancy"] }
+soft-canonicalize = "0.5.6"
