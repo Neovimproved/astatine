@@ -1,13 +1,13 @@
 use std::str::FromStr;
 
-use derive_more::Display;
+use derive_more::{Display, Error};
 
 use crate::{
     span::Span,
     syntax::{Keyword, Token, TokenKind},
 };
 
-#[derive(Debug, Display)]
+#[derive(Debug, Display, Error)]
 pub enum TokenizeError {
     #[display("Tried getting the next character but it didn't exist")]
     MissingChar,
@@ -16,22 +16,25 @@ pub enum TokenizeError {
     MultiplePeriods,
 
     #[display("`{_0}` is not understood by the lexer")]
-    UnrecognizedChar(char),
+    UnrecognizedChar(#[error(not(source))] char),
 
     #[display("Character literal must be only one character long")]
-    MultiCharChar(String),
+    MultiCharChar(#[error(not(source))] String),
 
     #[display("You must use a trailing backslash in order to make the string \"{_0}\" multiline")]
-    UnescapedMultilineString(String),
+    UnescapedMultilineString(#[error(not(source))] String),
 }
 
+#[derive(Debug)]
 pub struct Lexer {
     span: Span<char>,
 }
 
 impl Lexer {
     pub fn new(s: Vec<char>) -> Self {
-        Self { span: Span::new(s) }
+        Self {
+            span: Span::new(s.into()),
+        }
     }
 
     pub fn pos(&self) -> usize {
@@ -48,11 +51,11 @@ impl Lexer {
     }
 
     fn next_ok(&mut self) -> Result<char, TokenizeError> {
-        self.span.next().copied().ok_or(TokenizeError::MissingChar)
+        self.span.next().ok_or(TokenizeError::MissingChar)
     }
 
     fn next(&mut self) -> Option<char> {
-        self.span.next().copied()
+        self.span.next()
     }
 
     fn advance_to_next_line(&mut self) {
@@ -89,6 +92,8 @@ impl Lexer {
                         '[' => TokenKind::LeftSquare,
 
                         ']' => TokenKind::RightSquare,
+
+                        '=' => TokenKind::Equals,
 
                         ':' => TokenKind::Colon,
 
@@ -164,9 +169,9 @@ impl Lexer {
         }
 
         Ok(if period {
-            TokenKind::Integer(acc)
-        } else {
             TokenKind::Float(acc)
+        } else {
+            TokenKind::Integer(acc)
         })
     }
 
