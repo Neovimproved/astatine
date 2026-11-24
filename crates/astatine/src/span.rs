@@ -1,13 +1,16 @@
-use std::{fmt::Debug, slice};
+use std::{
+    collections::{VecDeque, vec_deque},
+    fmt::Debug,
+};
 
 #[derive(Debug)]
 pub struct Span<T> {
-    items: Vec<T>,
+    items: VecDeque<T>,
     position: usize,
 }
 
 impl<T> Span<T> {
-    pub fn new(items: Vec<T>) -> Self {
+    pub fn new(items: VecDeque<T>) -> Self {
         Self { items, position: 0 }
     }
 
@@ -16,40 +19,27 @@ impl<T> Span<T> {
     }
 
     pub fn peek(&self) -> Option<&T> {
-        self.items.get(self.position)
+        self.items.front()
     }
 
     pub fn peek_nth(&self, idx: usize) -> Option<&T> {
-        self.items.get(self.position + idx)
+        self.items.get(idx)
     }
 
-    pub fn next(&mut self) -> Option<&T> {
-        let item = self.items.get(self.position)?;
+    pub fn next(&mut self) -> Option<T> {
+        let item = self.items.pop_front()?;
         self.position += 1;
         Some(item)
     }
-
-    pub fn skip(&mut self, count: usize) -> Option<&T> {
-        self.position = (self.position + count).min(self.items.len());
-        self.items.get(self.position)
-    }
-
-    pub fn remaining(&self) -> &[T] {
-        &self.items[self.position..]
-    }
-
-    pub fn remaining_mut(&mut self) -> &mut [T] {
-        &mut self.items[self.position..]
-    }
 }
 
-impl<'a, T> IntoIterator for &'a Span<T> {
-    type Item = &'a T;
+impl<T> IntoIterator for Span<T> {
+    type Item = T;
 
-    type IntoIter = slice::Iter<'a, T>;
+    type IntoIter = vec_deque::IntoIter<T>;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.items[self.position..].iter()
+        self.items.into_iter()
     }
 }
 
