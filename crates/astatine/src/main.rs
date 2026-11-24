@@ -122,7 +122,7 @@ fn main() -> miette::Result<()> {
         Ok(tokens) => tokens,
         Err(err) => {
             let (line, column) = to_coordinates(&input_file_string, lexer.pos());
-            bail!("Failed to tokenize with {err}\nat line {line}, column {column}",);
+            bail!("Failed to tokenize with\n{err}\nat line {line}, column {column}",);
         }
     };
 
