@@ -4,6 +4,8 @@ use std::{fmt::Display, str::FromStr};
 use astatine_derive::EnumTryAs;
 use derive_more::Display;
 
+use crate::operators::{InfixOperator, PostfixOperator, PrefixOperator};
+
 #[derive(Debug, Display)]
 pub enum Keyword {
     Define,
@@ -127,6 +129,10 @@ impl Token {
         &self.kind
     }
 
+    pub fn into_kind(self) -> TokenKind {
+        self.kind
+    }
+
     pub fn pos(&self) -> usize {
         self.pos
     }
@@ -150,7 +156,48 @@ pub enum FunctionNode {
 }
 
 #[derive(Debug)]
-pub enum Expression {}
+pub enum Expression {
+    CharLiteral(char),
+
+    FloatLiteral(f64),
+
+    Identifier(String),
+
+    IntegerLiteral(i64),
+
+    StringLiteral(String),
+
+    InfixOp {
+        lhs: Box<Expression>,
+        op: InfixOperator,
+        rhs: Box<Expression>,
+    },
+
+    PrefixOp(PrefixOperator, Box<Expression>),
+
+    PostfixOp(Box<Expression>, PostfixOperator),
+}
+
+impl Expression {
+    // TODO: give it access to symbols or maybe constant fold early
+    pub fn try_evaluate(self) -> f64 {
+        match self {
+            Expression::CharLiteral(_) => todo!(),
+            Expression::FloatLiteral(num) => num,
+            Expression::Identifier(_) => todo!(),
+            Expression::IntegerLiteral(num) => num as f64,
+            Expression::StringLiteral(_) => todo!(),
+            Expression::InfixOp { lhs, op, rhs } => match op {
+                InfixOperator::Add => lhs.try_evaluate() + rhs.try_evaluate(),
+                InfixOperator::Sub => lhs.try_evaluate() - rhs.try_evaluate(),
+                InfixOperator::Mul => lhs.try_evaluate() * rhs.try_evaluate(),
+                InfixOperator::Div => lhs.try_evaluate() / rhs.try_evaluate(),
+            },
+            Expression::PrefixOp(prefix_operator, expression) => todo!(),
+            Expression::PostfixOp(expression, postfix_operator) => todo!(),
+        }
+    }
+}
 
 #[derive(Debug)]
 pub struct FunctionParameter {
@@ -161,5 +208,28 @@ pub struct FunctionParameter {
 impl FunctionParameter {
     pub fn new(name: String, ty: String) -> Self {
         Self { name, ty }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use std::str::FromStr;
+
+    use crate::syntax::Expression;
+
+    macro_rules! express {
+        ($expr:expr) => {{
+            let s = stringify!($expr);
+            ($expr, s)
+        }};
+    }
+
+    #[test]
+    fn expression_evaluation() {
+        let (expected, string) = express!(5.0 * (1.0 + 5.0) / 3.0);
+
+        let expr = Expression::from_str(&format!("{string};")).expect("Failed to parse expression");
+
+        assert_eq!(expr.try_evaluate(), expected);
     }
 }
