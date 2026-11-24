@@ -9,6 +9,7 @@ use clap::Parser as ClapParser;
 
 mod cli;
 mod lexer;
+mod operators;
 mod parser;
 mod span;
 mod syntax;
